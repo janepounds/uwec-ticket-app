@@ -1,0 +1,10 @@
+{
+  "expo": {
+    "name": "uwec-ticket-app",
+    "slug": "uwec-ticket-app",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  }
+}
