@@ -1,0 +1,21 @@
+{
+  "verifyticket": {
+    "id": 1,
+    "vehicleRegNo": [
+      "UAM 665M",
+      "UBB 789J"
+    ],
+    "booking": {
+      "refNumber": 10,
+      "bookingClass": 60,
+      "bookingId": "booking001",
+      "visitDate": "2023-01-16",
+      "bookingStatus": 80,
+      "bookingMode": 76
+    },
+    "numberOfVehicles": 2,
+    "parkingDate": "2023-01-16",
+    "amount": 4000
+  },
+  "postticket": {}
+}
