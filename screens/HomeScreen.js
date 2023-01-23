@@ -33,6 +33,60 @@ const HomeScreen = memo(() => {
         }else {
             setActionState(CREATE_TICKET)
         }
+        formBody = formBody.join('&');
+        // console.log(dataToSend);
+        fetch('https://application-mock-server.loca.lt/postticket', {
+            method: 'POST',
+            body: dataToSend,
+            headers: {
+                //Header Defination
+                'Content-Type':
+                    'application/json;charset=UTF-8',
+            },
+        })
+            .then((response) => response.json())
+            .then((responseJson) => {
+                //Hide Loader
+                setLoading(false);
+                console.log( );
+                // If server response message same as Data Matched
+                if (responseJson.status === 'success') {
+                    setIsSuccess(true);
+                    console.log(
+                        'Ticket Issue Successful.'
+                    );
+                } else {
+                    setErrortext(responseJson.msg);
+                }
+            })
+            .catch((error) => {
+                //Hide Loader
+                setLoading(false);
+                console.error(error);
+            });
+    };
+    if (isSuccess) {
+        return (
+            <View
+                style={{
+                    flex: 1,
+                    backgroundColor: '#fff',
+                    //backgroundColor: '#307ecc',
+                    justifyContent: 'center',
+                }}>
+                <Image
+                    source={require('../images/success.png')}
+                    style={{
+                        height: 150,
+                        resizeMode: 'contain',
+                        alignSelf: 'center'
+                    }}
+                />
+                <Text style={styles.successTextStyle}>
+                    Ticket Issue Successful
+                </Text>
+            </View>
+        );
     }
 
     const removeField = (boxId, position) => {
