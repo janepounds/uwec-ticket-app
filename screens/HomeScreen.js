@@ -1,326 +1,260 @@
-import React, { useState, createRef } from 'react';
-import {
-    StyleSheet,
-    TextInput,
-    View,
-    Text,
-    Image,
-    KeyboardAvoidingView,
-    Keyboard,
-    TouchableOpacity,
-    ScrollView,
-} from 'react-native';
-import { Card } from 'react-native-paper';
+import React, { useState, useEffect, memo } from 'react';
+import { View, Text, SafeAreaView, StyleSheet, TouchableOpacity, ScrollView, Alert } from 'react-native';
 
-import Loader from '../components/loader';
+//components
+import { Card, TextInput, Appbar } from 'react-native-paper';
 
-const HomeScreen = (props) => {
-    const [ticketNumber, setTicketNumber] = useState('');
-    const [ticketDate, setTicketDate] = useState('');
-    const [vehicleNumber, setVehicleNumber] = useState('');
-    const [numberPlates, setNumberPlates] = useState('');
-    const [totalAmount, setTotalAmount] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [errortext, setErrortext] = useState('');
-    const [
-        isSuccess,
-        setIsSuccess
-    ] = useState(false);
+const CREATE_TICKET = 1;
+const VERIFY_TICKET = 2;
+const FIRST_ELEMENT = `${Date.now()}-ID`;
+const today = new Date();
 
-    const emailInputRef = createRef();
-    const ageInputRef = createRef();
+//create custom AppBar
+const MainBar = () => {
+    return (
+        <Appbar.Header>
+            <Appbar.Content title="UWEC" />
+        </Appbar.Header>
+    );
+}
 
-    const handleSubmitButton = () => {
-        setErrortext('');
-        if (!ticketNumber) {
-            alert('Please fill Ticket number');
-            return;
-        }
-        if (!vehicleNumber) {
-            alert('Please fill Number of Vehicles');
-            return;
-        }
-        if (!numberPlates) {
-            alert('Please fill Number Plates');
-            return;
-        }
-        if (!totalAmount) {
-            alert('Please fill Total Amount');
-            return;
-        }
+const HomeScreen = memo(() => {
 
-        //Show Loader
-        setLoading(true);
-        var dataToSend = {
-            vehicleRegNo: numberPlates,
-            numberOfVehicles: vehicleNumber,
-            amount: totalAmount,
-        };
-        var formBody = [];
-        for (var key in dataToSend) {
-            var encodedKey = encodeURIComponent(key);
-            var encodedValue = encodeURIComponent(dataToSend[key]);
-            formBody.push(encodedKey + '=' + encodedValue);
+    const [actionState, setActionState] = useState(CREATE_TICKET);
+    const [ticketNumber, setTicketNumber] = useState("")
+    const [numberOfVechiles, setNumberOfVechiles] = useState(0);
+    const [boxPlates, setBoxPlates] = useState([FIRST_ELEMENT]);
+    const [vechileNumberPlates, setVechileNumberPlates] = useState([]);
+    const [totalAmount, setTotalAmount] = useState(0);
+
+    const _toggleFunctionality = () => {
+        if(actionState === CREATE_TICKET){
+            setActionState(VERIFY_TICKET)
+        }else {
+            setActionState(CREATE_TICKET)
         }
-        formBody = formBody.join('&');
-        // console.log(dataToSend);
-        fetch('https://application-mock-server.loca.lt/postticket', {
-            method: 'POST',
-            body: dataToSend,
-            headers: {
-                //Header Defination
-                'Content-Type':
-                    'application/json;charset=UTF-8',
-            },
-        })
-            .then((response) => response.json())
-            .then((responseJson) => {
-                //Hide Loader
-                setLoading(false);
-                console.log(responseJson);
-                // If server response message same as Data Matched
-                if (responseJson.status === 'success') {
-                    setIsSuccess(true);
-                    console.log(
-                        'Ticket Issue Successful.'
-                    );
-                } else {
-                    setErrortext(responseJson.msg);
-                }
-            })
-            .catch((error) => {
-                //Hide Loader
-                setLoading(false);
-                console.error(error);
-            });
-    };
-    if (isSuccess) {
-        return (
-            <View
-                style={{
-                    flex: 1,
-                    backgroundColor: '#fff',
-                    //backgroundColor: '#307ecc',
-                    justifyContent: 'center',
-                }}>
-                <Image
-                    source={require('../images/success.png')}
-                    style={{
-                        height: 150,
-                        resizeMode: 'contain',
-                        alignSelf: 'center'
-                    }}
-                />
-                <Text style={styles.successTextStyle}>
-                    Ticket Issue Successful
-                </Text>
-            </View>
-        );
     }
 
-    const [buttonTitle, setButtonTitle] =  useState('Verify Ticket')
-    const _toggleFunctionality =  () => {
-        if(buttonTitle === 'Verify Ticket'){
-            setButtonTitle("Create Ticket");
+    const removeField = (boxId, position) => {
+        if(boxPlates.length < 2){
+            Alert.alert("Erase and input information", "You can't delete this");
             return true;
         }
-        setButtonTitle("Verify Ticket")
+        const newboxPlates = boxPlates.filter((value, index) => index !== position);
+        const newVechileNumberPlates = vechileNumberPlates.filter((value, index) => index !== position);
+        setBoxPlates(newboxPlates)
+        setVechileNumberPlates(newVechileNumberPlates)
     }
 
-    return (
-        <View style={{ flex: 1, backgroundColor: '#eee', }}>
-            <Loader loading={loading} />
-            <ScrollView
-                keyboardShouldPersistTaps="handled"
-                contentContainerStyle={{
-                    //justifyContent: 'center',
-                    //alignContent: 'center',
-                    flexGrow: 1,
-                    paddingHorizontal: 10,
-                }}>
+    const _addAnotherCar = () => {
+        const newBoxViewId = `${Date.now()}-ID`;
+        const BatchBox = [...boxPlates, newBoxViewId]
+        setBoxPlates(BatchBox)
+    }
+
+    const computeTotal = () => {
+        //compute the amount
+        //then update it automatically
+    }
+
+    const submitResponse = () => {
+        if(actionState === CREATE_TICKET){
+            //call function to create ticket
+            alert("creating ticket")
+        }else{
+            //call function to verify ticket
+            alert("verifying ticket")
+        }
+    }
+
+    const showCardContent = () => {
+        if(actionState === CREATE_TICKET){
+            return (
                 <View>
-                    <Image
-                        source={require('../images/logo.png')}
-                        style={{
-                            height: 100,
-                            aspectRatio: 1 / 1,
-                            resizeMode: 'contain',
-                            marginVertical: 30,
-                            alignSelf: 'center'
-                        }}
-                    />
+                    <View style={styles.mainBody}>
+                        <TextInput
+                            style={styles.inputStyle}
+                            mode={"flat"}
+                            value={ticketNumber}
+                            onChangeText={(ticketNumber) => setTicketNumber(ticketNumber)}
+                            label="Enter Ticket number"
+                            autoCapitalize="sentences"
+                            returnKeyType="next"
+                        />
+
+                        <Card style={styles.innerCard}>
+                            {(boxPlates.length) > 0 && (boxPlates.map((boxId, index) => {
+                                return (
+                                    <TextInput
+                                        key={(`${boxId}-id-${index}-date-${Date.now()}`).toString()}
+                                        style={styles.inputStyle}
+                                        mode={"flat"}
+                                        value={vechileNumberPlates[index]}
+                                        onChangeText={(numberPlate) => { 
+                                            let customArray = vechileNumberPlates
+                                            vechileNumberPlates[index]= numberPlate
+                                            setVechileNumberPlates(vechileNumberPlates)
+                                        }}
+                                        label="Enter Number Plate"
+                                        autoCapitalize="sentences"
+                                        returnKeyType="next"
+                                        right={<TextInput.Icon onPress={() => removeField(boxId, index)} icon="delete" />}
+                                    />
+                                );
+                            }))}
+                        </Card>
+                    </View>
+
+                    <TouchableOpacity style={styles.smallBtn} onPress={_addAnotherCar}>
+                        <Text style={styles.smallBtnText}>Add Car Number Plate</Text>
+                    </TouchableOpacity>
+
+                    <Card style={styles.bottomCard}>
+                        <View style={styles.bottomCardContainer}>
+                            <Text>Total</Text>
+                            <Text>UGX: {totalAmount}</Text>
+                        </View>
+                    </Card>
                 </View>
+            );
+        }else{
+            return (
+                <View style={styles.mainBody}>
+                    <TextInput
+                        style={styles.inputStyle}
+                        mode={"flat"}
+                        value={ticketNumber}
+                        onChangeText={(ticketNumber) => setTicketNumber(ticketNumber)}
+                        label="Enter Ticket number"
+                        autoCapitalize="sentences"
+                        returnKeyType="next"
+                    />
+                </View>    
+            );
+        }
+    }
+
+
+    return (
+        <SafeAreaView style={styles.wrapper}>
+            <MainBar/>
+            
+            <ScrollView contentContainerStyle={styles.container}>
                 
-                <TouchableOpacity  onPress={() => props.navigation.navigate('VerifyTicket')} style={styles.topBtn}>
-                    <Text style={styles.topBtnText}>{buttonTitle}</Text>
+                <TouchableOpacity style={styles.topBtn} onPress={_toggleFunctionality}>
+                    <Text style={styles.topBtnText}>{actionState === 1 ? "Verify ticket" : "Create new ticket"}</Text>
                 </TouchableOpacity>
 
-                <KeyboardAvoidingView enabled>
-                    <Card style={styles.ticketCard}>
-                        <View style={styles.container}>
-                            <Text style={styles.header}>CREATE NEW TICKET</Text>
-                            <Text style={{ color: 'red', fontSize: 15, }}>Date: <Text style={{ color: '#000', fontSize: 10, }}>19/01/2023</Text></Text>
-                        </View>
-                        <View style={styles.SectionStyle}>
-                            <TextInput
-                                style={styles.inputStyle}
-                                onChangeText={(ticketNumber) => setTicketNumber(ticketNumber)}
-                                underlineColorAndroid="#f000"
-                                placeholder="Enter Ticket number"
-                                placeholderTextColor="#8b9cb5"
-                                autoCapitalize="sentences"
-                                returnKeyType="next"
-                                onSubmitEditing={() =>
-                                    emailInputRef.current && emailInputRef.current.focus()
-                                }
-                                blurOnSubmit={false}
-                            />
-                        </View>
-                        <View style={styles.SectionStyle}>
-                            <TextInput
-                                style={styles.inputStyle}
-                                onChangeText={(vehicleNumber) => setVehicleNumber(vehicleNumber)}
-                                underlineColorAndroid="#f000"
-                                placeholder="Enter Number of Vehicles"
-                                placeholderTextColor="#8b9cb5"
-                                keyboardType="numeric"
-                                returnKeyType="next"
-                                blurOnSubmit={false}
-                            />
-                        </View>
-                        <View style={styles.SectionStyle}>
-                            <TextInput
-                                style={styles.inputStyle}
-                                onChangeText={(numberPlates) =>
-                                    setNumberPlates(numberPlates)
-                                }
-                                underlineColorAndroid="#f000"
-                                placeholder="Enter Number Plates"
-                                placeholderTextColor="#8b9cb5"
-                                returnKeyType="next"
-                                autoCapitalize="sentences"
-                                onSubmitEditing={() =>
-                                    ageInputRef.current &&
-                                    ageInputRef.current.focus()
-                                }
-                                blurOnSubmit={false}
-                            />
-                        </View>
-                        <View style={styles.SectionStyle}>
-                            <TextInput
-                                style={styles.inputStyle}
-                                onChangeText={(totalAmount) => setTotalAmount(totalAmount)}
-                                underlineColorAndroid="#f000"
-                                placeholder="Enter Total Amount"
-                                placeholderTextColor="#8b9cb5"
-                                keyboardType="numeric"
-                                ref={ageInputRef}
-                                returnKeyType="next"
-                                blurOnSubmit={false}
-                            />
-                        </View>
-                        {errortext != '' ? (
-                            <Text style={styles.errorTextStyle}>
-                                {errortext}
-                            </Text>
-                        ) : null}
-                        <TouchableOpacity
-                            style={styles.buttonStyle}
-                            activeOpacity={0.5}
-                            onPress={handleSubmitButton}>
-                            <Text style={styles.buttonTextStyle}>GENERATE</Text>
-                        </TouchableOpacity>
-                    </Card>
-                </KeyboardAvoidingView>
+                <Card style={styles.containerCard}>
+                    <Text style={styles.header}>{actionState === 1 ? "Create Ticket": "Verify Ticket"}</Text>
+
+                    <View style={styles.dateView}>
+                        <Text style={styles.dateText}>Date: <Text style={{color: '#aaa', fontWeight: '300',}}>{today.toLocaleDateString()}</Text></Text>
+                    </View>
+
+                    {showCardContent()}
+
+                    <TouchableOpacity style={styles.mainBtn} onPress={submitResponse}>
+                        <Text style={styles.mainBtnText}>Submit</Text>
+                    </TouchableOpacity>
+                    
+                </Card>
+
             </ScrollView>
-        </View>
-    );
-};
+        </SafeAreaView>
+    )
+});
+
 export default HomeScreen;
 
 const styles = StyleSheet.create({
-    SectionStyle: {
-        //flexDirection: 'row',
-        //height: 50,
-        //marginTop: 20,
-        //marginLeft: 35,
-        //marginRight: 35,
-        //margin: 10,
-    },
-    buttonStyle: {
-        backgroundColor: '#006400',
-        borderWidth: 0,
-        color: '#FFFFFF',
-        borderColor: '#7DE24E',
-        height: 40,
-        alignItems: 'center',
-        borderRadius: 30,
-        marginLeft: 35,
-        marginRight: 35,
-        marginTop: 20,
-        marginBottom: 20,
-    },
-    buttonTextStyle: {
-        color: '#FFFFFF',
-        paddingVertical: 10,
-        fontSize: 16,
-    },
-    inputStyle: {
-        color: 'gray',
-        borderWidth: 1,
-        borderRadius: 5,
-        borderColor: '#006400',
-        height: 50,
-        paddingHorizontal: 10,
-        paddingVertical: 5,
-        marginBottom: 16,
-    },
-    errorTextStyle: {
-        color: 'red',
-        textAlign: 'center',
-        fontSize: 14,
-    },
-    successTextStyle: {
-        color: 'white',
-        textAlign: 'center',
-        fontSize: 18,
-        padding: 30,
-    },
-    ticketCard: {
-        paddingHorizontal: 16,
-        paddingVertical: 10,
-        marginBottom: 16,
-        borderRadius: 5,
-        backgroundColor: '#fff',
-        elevation: 0,
-        marginLeft: 15,
-        marginEnd: 15,
-    },
-    header: {
-        fontSize: 18,
-        //marginLeft: 20,
-        fontWeight: '600',
-        textAlign: 'left'
+    wrapper: {
+        flex: 1,
+        backgroundColor: '#eee',
     },
     container: {
-        marginTop: 10,
-        marginBottom: 15,
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
+        flexGrow: 1,
+        paddingHorizontal: 16,
+        paddingBottom: 30,
+        //justifyContent: 'center', 
     },
     topBtn: {
         alignSelf: 'flex-end',
         backgroundColor: '#006400',
-        marginBottom: 20,
+        marginTop: 20,
         paddingHorizontal: 16,
         paddingVertical: 7,
         borderRadius: 5,
-        marginHorizontal: 12,
     },
     topBtnText: {
         color: '#fff',
         fontSize: 16,
         textAlign: 'center',
-    }
+    },
+    containerCard: {
+        paddingHorizontal: 10,
+        paddingVertical: 10,
+        borderRadius: 5,
+        marginTop: 20,
+    },
+    header: {
+        textAlign: 'center',
+        fontSize: 20,
+        color: '#000000',
+        fontWeight: '500',  
+    },
+    dateView: {
+        marginVertical: 5,
+    },
+    dateText: {
+        color: '#000000',
+        fontSize: 14,
+        fontWeight: '500', 
+    },
+    inputStyle: {
+        height: 50,
+        marginBottom: 14,
+    },
+    smallBtn: {
+        backgroundColor: 'red',
+        alignSelf: 'flex-start',
+        borderRadius: 5,
+        paddingHorizontal: 10,
+        paddingVertical: 5,
+        marginTop: 10,
+    },
+    smallBtnText: {
+        color: '#fff',
+        fontSize: 15,
+        textAlign: 'center', 
+    },
+    innerCard: {
+        paddingHorizontal: 10,
+        paddingTop: 10,
+        borderRadius: 5,
+    },
+    bottomCard: {
+        paddingHorizontal: 10,
+        paddingVertical: 5,
+        borderRadius: 5,
+        marginTop: 10,
+        marginBottom: 20,
+    },
+    bottomCardContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',  
+    },
+    mainBtn: {
+        backgroundColor: 'blue',
+        alignSelf: 'center',
+        paddingHorizontal: 20,
+        paddingVertical: 7,
+        borderRadius: 5,
+        marginBottom: 10,
+    },
+    mainBtnText: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: '500', 
+    },
 });
