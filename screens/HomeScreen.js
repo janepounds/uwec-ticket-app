@@ -9,6 +9,7 @@ const VERIFY_TICKET = 2;
 const FIRST_ELEMENT = `${Date.now()}-ID`;
 const today = new Date();
 
+
 //create custom AppBar
 const MainBar = () => {
     return (
@@ -26,6 +27,10 @@ const HomeScreen = memo(() => {
     const [boxPlates, setBoxPlates] = useState([FIRST_ELEMENT]);
     const [vechileNumberPlates, setVechileNumberPlates] = useState([]);
     const [totalAmount, setTotalAmount] = useState(0);
+    const [
+        isSuccess,
+        setIsSuccess
+    ] = useState(false);
 
     const _toggleFunctionality = () => {
         if(actionState === CREATE_TICKET){
