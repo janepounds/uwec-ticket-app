@@ -111,9 +111,14 @@ const HomeScreen = memo(() => {
         setBoxPlates(BatchBox)
     }
 
+    useEffect(() => {
+        computeTotal();
+    },[boxPlates]);
+
     const computeTotal = () => {
-        //compute the amount
-        //then update it automatically
+        //const amount = count(numberPlates) * 2000;
+        const amount = (boxPlates.length) * 2000;
+        setTotalAmount(amount);
     }
 
     const submitResponse = () => {
